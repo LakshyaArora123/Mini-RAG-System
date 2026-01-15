@@ -1,7 +1,15 @@
 fastapi
 uvicorn
-qdrant-client
+
 sentence-transformers
+qdrant-client
+scikit-learn
+numpy
+
 python-dotenv
-google-generativeai
+pydantic
+
+google-genai
+httpx
+
 pypdf
