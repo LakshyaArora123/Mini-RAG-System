@@ -1,0 +1,198 @@
+import os, re
+os.environ["TRANSFORMERS_NO_TF"] = "1"
+os.environ["TRANSFORMERS_NO_FLAX"] = "1"
+
+from google import genai
+
+client_gemini = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+
+from sentence_transformers import SentenceTransformer
+from qdrant_client import QdrantClient
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+
+load_dotenv('backend/.env', override=True)
+
+COLLECTION = "mini_rag_local"
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+from backend.qdrant_client import client, COLLECTION
+from qdrant_client.models import Filter, FieldCondition, MatchValue
+
+def fetch_all_chunks(source: str, limit: int = 100):
+    results = client.scroll(
+        collection_name=COLLECTION,
+        scroll_filter=Filter(
+            must=[
+                FieldCondition(
+                    key="source",
+                    match=MatchValue(value=source)
+                )
+            ]
+        ),
+        limit=limit
+    )[0]
+
+    return [r.payload["text"] for r in results]
+
+def summarize_document(source: str):
+    chunks = fetch_all_chunks(source)
+
+    if not chunks:
+        return {
+            "source": source,
+            "summary": "No content found for this document."
+        }
+
+    # Limit context size (important)
+    context = "\n\n".join(chunks[:20])
+
+    prompt = f"""
+You are an expert assistant.
+
+Summarize the following document clearly and concisely.
+Use your own words.
+Do not quote verbatim.
+Focus on key ideas, concepts, and structure.
+
+Document content:
+{context}
+
+Summary:
+"""
+    response = client_gemini.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+
+    return {
+        "source": source,
+        "summary": response.text.strip()
+    }
+
+
+def gemini_synthesize_answer(query: str, contexts: list[str]) -> str:
+    if not contexts:
+        return "I do not know based on the provided context."
+
+    context_block = "\n\n".join(contexts)
+
+    prompt = f"""
+You are a knowledgeable assistant.
+
+Use ONLY the information from the context below.
+Do NOT copy sentences verbatim.
+Explain in your own words.
+If the answer is not present, say you don't know.
+
+Context:
+{context_block}
+
+Question:
+{query}
+
+Answer:
+""".strip()
+
+    response = client_gemini.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+
+    return response.text.strip()
+
+
+def lexical_score(query, text):
+    q = set(re.findall(r"\w+", query.lower()))
+    t = set(re.findall(r"\w+", text.lower()))
+    return len(q & t) / (len(q) + 1e-6)
+
+def hybrid_rerank(query, docs, alpha=0.7):
+    if not docs:
+        return []
+
+    query_emb = model.encode([query])  # shape (1, d)
+    texts = [d["text"] for d in docs]
+    doc_embs = model.encode(texts)     # shape (n, d)
+
+    sem_scores = cosine_similarity(query_emb, doc_embs)[0]
+
+    scores = []
+    for i, d in enumerate(docs):
+        lex = lexical_score(query, d["text"])
+        score = alpha * sem_scores[i] + (1 - alpha) * lex
+        scores.append(score)
+
+    ranked = sorted(
+        zip(docs, scores),
+        key=lambda x: x[1],
+        reverse=True
+    )
+    return [d for d, _ in ranked]
+
+RELEVANCE_THRESHOLD = 0.3
+
+def answer_query(query, top_k=5, source=None):
+    SUMMARY_TRIGGERS = [
+    "summarize",
+    "summary",
+    "overview",
+    "give an overview"
+]
+
+    if any(t in query.lower() for t in SUMMARY_TRIGGERS) and source:
+        return summarize_document(source)
+
+    query_vec = model.encode(query).tolist()
+
+    search_kwargs = {
+        "collection_name": COLLECTION,
+        "query_vector": query_vec,
+        "limit": top_k
+    }
+
+    if source:
+        search_kwargs["query_filter"] = {
+            "must": [
+                {"key": "source", "match": {"value": source}}
+            ]
+        }
+
+    results = client.search(**search_kwargs)
+
+    if not results:
+        return {
+            "query": query,
+            "final_answer": "I do not know based on the provided context.",
+            "top_contexts": []
+        }
+
+    filtered = [r for r in results if r.score >= 0.5]
+
+    if not filtered:
+        return {
+            "query": query,
+            "final_answer": "I do not know based on the provided context.",
+            "top_contexts": []
+        }
+
+    docs = [r.payload for r in filtered]
+    reranked = hybrid_rerank(query, docs)
+    top_contexts = reranked[:3]
+
+    context_texts = [c["text"] for c in top_contexts]
+
+    try:
+        final_answer = gemini_synthesize_answer(query, context_texts)
+    except Exception:
+        final_answer = top_contexts[0]["text"]
+
+    return {
+        "query": query,
+        "final_answer": final_answer,
+        "top_contexts": top_contexts
+    }
