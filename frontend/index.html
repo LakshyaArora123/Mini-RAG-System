@@ -6,53 +6,80 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app-layout">
 
-    <!-- LEFT SIDE PANEL -->
-    <aside class="side-panel">
-      <h2>📂 Documents</h2>
+<div class="app-layout">
 
-      <div id="fileStatus" class="file-status">
-        No file uploaded
-      </div>
+  <!-- LEFT SIDE PANEL -->
+  <aside class="side-panel">
+    <div class="resize-handle"></div>
 
-      <div id="fileList" class="file-list">
-        <!-- dynamically populated -->
-      </div>
+    <div class="side-header">Documents</div>
 
-      <button class="clear-btn" onclick="clearDocuments()">
-        🗑 Clear All Documents
-      </button>
-    </aside>
-
-    <!-- MAIN CHAT AREA -->
-    <div class="chat-container">
-      <div class="chat-box">
-        <div id="chatWindow" class="chat-window"></div>
-
-        <div class="input-bar">
-          <label for="fileInput" class="file-label">📎</label>
-          <input
-            id="fileInput"
-            type="file"
-            class="file-input"
-            accept=".pdf,.txt"
-          />
-
-          <input
-            id="queryInput"
-            type="text"
-            placeholder="Ask something..."
-            onkeydown="if(event.key==='Enter') sendMessage()"
-          />
-          <button onclick="sendMessage()">Send</button>
-          <button class="summary-btn" onclick="summarizeCurrentDocument()">Summarize</button>
-        </div>
-      </div>
+    <div id="fileStatus" class="file-status">
+      No file uploaded
     </div>
 
+    <div id="fileList" class="file-list"></div>
+
+    <button class="clear-btn" onclick="clearDocuments()">
+      Clear All
+    </button>
+  </aside>
+
+  <!-- MAIN CHAT AREA -->
+  <div class="chat-container">
+    <div class="chat-box">
+
+      <div id="chatWindow" class="chat-window"></div>
+
+      <!-- INPUT BAR -->
+      <div class="input-bar">
+
+        <!-- Hidden file input (ONLY ONE) -->
+        <input
+          id="fileInput"
+          type="file"
+          class="file-input"
+          accept=".pdf,.txt"
+        />
+
+        <!-- Attach button -->
+        <button
+          type="button"
+          class="attach-btn"
+          id="attachBtn">
+          Attach
+        </button>
+
+        <input
+          id="queryInput"
+          type="text"
+          placeholder="Ask something..."
+          onkeydown="if(event.key==='Enter') sendMessage()"
+        />
+
+        <button onclick="sendMessage()">Send</button>
+
+        <button
+          class="summary-btn"
+          onclick="summarizeCurrentDocument()">
+          Summarize
+        </button>
+
+      </div>
+    </div>
   </div>
 
-  <script src="app.js"></script>
+</div>
+
+<script src="app.js"></script>
+
+<!-- Attach button logic -->
+<script>
+  document.getElementById("attachBtn").addEventListener("click", () => {
+    document.getElementById("fileInput").click();
+  });
+</script>
+
 </body>
 </html>

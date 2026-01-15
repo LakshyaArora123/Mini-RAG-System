@@ -22,6 +22,7 @@ async function uploadFile(file) {
 
 async function summarizeCurrentDocument() {
   console.log("SUMMARY BUTTON CLICKED");
+  console.log("currentFile =", currentFile);
 
   if (!currentFile) {
     addMessage("assistant", "No document uploaded.");
