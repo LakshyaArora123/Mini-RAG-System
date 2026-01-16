@@ -7,7 +7,7 @@ async function uploadFile(file) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch("${BACKEND_URL}/upload", {
+  const res = await fetch('${BACKEND_URL}/upload', {
     method: "POST",
     body: formData
   });
@@ -43,7 +43,7 @@ async function sendMessage() {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch("${BACKEND_URL}/upload", {
+    const res = await fetch('${BACKEND_URL}/upload', {
       method: "POST",
       body: formData
     });
@@ -57,7 +57,7 @@ async function sendMessage() {
   addMessage(query, "user");
   input.value = "";
 
-  const res = await fetch("${BACKEND_URL}/chat", {
+  const res = await fetch('${BACKEND_URL}/chat', {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
@@ -79,7 +79,7 @@ function addFileToPanel(name) {
 }
 
 async function clearDocs() {
-  await fetch("${BACKEND_URL}/clear", { method: "DELETE" });
+  await fetch('${BACKEND_URL}/clear', { method: "DELETE" });
   document.getElementById("fileList").innerHTML = "";
   selectedFile = null;
   addMessage("All documents cleared.", "bot");
