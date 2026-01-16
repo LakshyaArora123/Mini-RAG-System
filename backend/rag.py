@@ -9,7 +9,7 @@ client_gemini = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 load_dotenv('backend/.env', override=True)
 
-COLLECTION = "mini_rag_local"
+COLLECTION = "mini_rag_loc"
 
 def gemini_embed(text: str) -> list[float]:
     response = client_gemini.models.embed_content(
