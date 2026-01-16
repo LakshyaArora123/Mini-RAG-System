@@ -119,11 +119,12 @@ def answer_query(query, top_k=5, source=None):
 
     query_vec = gemini_embed(query)
 
-    results = client.search(
+    results = client.query_points(
     collection_name=COLLECTION,
-    query_vector=query_vec,
+    query=query_vec,
     limit=top_k,
-    query_filter=Filter(
+    with_payload=True,
+    filter=Filter(
         must=[
             FieldCondition(
                 key="source",
@@ -131,8 +132,7 @@ def answer_query(query, top_k=5, source=None):
             )
         ]
     ) if source else None
-)
-
+    )
 
     if not results:
         return {
@@ -141,16 +141,8 @@ def answer_query(query, top_k=5, source=None):
             "top_contexts": []
         }
 
-    filtered = [r for r in results if r.score >= 0.5]
+    top_contexts = [r.payload for r in results.points[:3]]
 
-    if not filtered:
-        return {
-            "query": query,
-            "final_answer": "I do not know based on the provided context.",
-            "top_contexts": []
-        }
-
-    top_contexts = [r.payload for r in filtered[:3]]
 
     context_texts = [c["text"] for c in top_contexts]
 
