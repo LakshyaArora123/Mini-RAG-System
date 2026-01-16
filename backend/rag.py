@@ -107,43 +107,44 @@ Answer:
 
 RELEVANCE_THRESHOLD = 0.3
 def answer_query(query, top_k=5, source=None):
-    SUMMARY_TRIGGERS = [
-    "summarize",
-    "summary",
-    "overview",
-    "give an overview"
-]
+    SUMMARY_TRIGGERS = ["summarize", "summary", "overview", "give an overview"]
 
     if any(t in query.lower() for t in SUMMARY_TRIGGERS) and source:
         return summarize_document(source)
 
     query_vec = gemini_embed(query)
 
-    results = client.query_points(
-    collection_name=COLLECTION,
-    query=query_vec,
-    limit=top_k,
-    with_payload=True,
-    search_filter=Filter(
-        must=[
-            FieldCondition(
-                key="source",
-                match=MatchValue(value=source)
+    if source:
+        results = client.query_points(
+            collection_name=COLLECTION,
+            query=query_vec,
+            limit=top_k,
+            with_payload=True,
+            filter=Filter(
+                must=[
+                    FieldCondition(
+                        key="source",
+                        match=MatchValue(value=source)
+                    )
+                ]
             )
-        ]
-    ) if source else None
-    )
+        )
+    else:
+        results = client.query_points(
+            collection_name=COLLECTION,
+            query=query_vec,
+            limit=top_k,
+            with_payload=True
+        )
 
-    if not results:
+    if not results or not results.points:
         return {
             "query": query,
             "final_answer": "I do not know based on the provided context.",
             "top_contexts": []
         }
 
-    top_contexts = [r.payload for r in results.points[:3]]
-
-
+    top_contexts = [p.payload for p in results.points[:3]]
     context_texts = [c["text"] for c in top_contexts]
 
     try:
