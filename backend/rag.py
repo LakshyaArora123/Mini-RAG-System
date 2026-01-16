@@ -1,13 +1,22 @@
 import os, re
 from google import genai
 from dotenv import load_dotenv
-from qdrant_client import QdrantClient
-from backend.qdrant_client import client, COLLECTION
 from qdrant_client.models import Filter, FieldCondition, MatchValue
+from qdrant_client import QdrantClient
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 load_dotenv('backend/.env', override=True)
+
 client_gemini = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+COLLECTION = "mini_rag_loc"
+
+client = QdrantClient(
+    url=os.getenv("QDRANT_URL"),
+    api_key=os.getenv("QDRANT_API_KEY"),
+    timeout=30
+)
+
 
 def gemini_embed(text: str) -> list[float]:
     response = client_gemini.models.embed_content(
@@ -110,20 +119,20 @@ def answer_query(query, top_k=5, source=None):
 
     query_vec = gemini_embed(query)
 
-    search_kwargs = {
-        "collection_name": COLLECTION,
-        "query_vector": query_vec,
-        "limit": top_k
-    }
+    results = client.search(
+    collection_name=COLLECTION,
+    query_vector=query_vec,
+    limit=top_k,
+    query_filter=Filter(
+        must=[
+            FieldCondition(
+                key="source",
+                match=MatchValue(value=source)
+            )
+        ]
+    ) if source else None
+)
 
-    if source:
-        search_kwargs["query_filter"] = {
-            "must": [
-                {"key": "source", "match": {"value": source}}
-            ]
-        }
-
-    results = client.search_points(**search_kwargs)
 
     if not results:
         return {
