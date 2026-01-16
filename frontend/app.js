@@ -1,7 +1,7 @@
 let chatHistory = [];
 let selectedFile = null;
 let currentFile = null;
-const BACKEND_URL = "https://mini-rag-system-production.up.railway.app/";
+const BACKEND_URL = "https://mini-rag-system-production.up.railway.app";
 
 async function uploadFile(file) {
   const formData = new FormData();
