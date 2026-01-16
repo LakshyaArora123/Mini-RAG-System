@@ -1,12 +1,13 @@
 let chatHistory = [];
 let selectedFile = null;
 let currentFile = null;
+const BACKEND_URL = "https://mini-rag-system-production.up.railway.app/";
 
 async function uploadFile(file) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch("http://127.0.0.1:8000/upload", {
+  const res = await fetch("${BACKEND_URL}/upload", {
     method: "POST",
     body: formData
   });
@@ -42,7 +43,7 @@ async function sendMessage() {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch("http://127.0.0.1:8000/upload", {
+    const res = await fetch("${BACKEND_URL}/upload", {
       method: "POST",
       body: formData
     });
@@ -56,7 +57,7 @@ async function sendMessage() {
   addMessage(query, "user");
   input.value = "";
 
-  const res = await fetch("http://127.0.0.1:8000/chat", {
+  const res = await fetch("${BACKEND_URL}/chat", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
@@ -78,7 +79,7 @@ function addFileToPanel(name) {
 }
 
 async function clearDocs() {
-  await fetch("http://127.0.0.1:8000/clear", { method: "DELETE" });
+  await fetch("${BACKEND_URL}/clear", { method: "DELETE" });
   document.getElementById("fileList").innerHTML = "";
   selectedFile = null;
   addMessage("All documents cleared.", "bot");
