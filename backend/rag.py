@@ -48,7 +48,6 @@ def summarize_document(source: str):
             "summary": "No content found for this document."
         }
 
-    # Limit context size (important)
     context = "\n\n".join(chunks[:20])
 
     prompt = f"""

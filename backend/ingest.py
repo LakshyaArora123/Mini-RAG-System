@@ -16,7 +16,6 @@ client = QdrantClient(
     timeout=30
 )
 
-# ---- Ensure collection exists (NO DELETE) ----
 if not client.collection_exists(COLLECTION):
     client.create_collection(
         collection_name=COLLECTION,

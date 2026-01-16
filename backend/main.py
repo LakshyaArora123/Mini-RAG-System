@@ -62,17 +62,15 @@ def chat(req: ChatRequest):
 
 
 from fastapi import UploadFile, File
-from backend.ingest_utils import ingest_file  # your existing ingestion logic
+from backend.ingest_utils import ingest_file  
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     file_path = UPLOAD_DIR / file.filename
 
-    # Save file locally
     with open(file_path, "wb") as f:
         f.write(await file.read())
 
-    # Ingest into Qdrant
     ingest_file(file_path)
 
     return {
