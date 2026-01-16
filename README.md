@@ -45,10 +45,6 @@ This project demonstrates **end-to-end backend engineering**, vector search, clo
 
 ## 🔁 Detailed RAG Pipeline
 
-![Image](https://d2908q01vomqb2.cloudfront.net/b6692ea5df920cad691c20319a6fffd7a4a766b8/2024/03/13/BDB-3880_1.png)
-
-![Image](https://thedataquarry.com/_astro/embedding-pipeline.7jg2V3To_1v9wsd.webp)
-
 ![Image](https://cdn.prod.website-files.com/640248e1fd70b63c09bd3d09/652c62561b4433a6c8d2cc51_Customizable%20re-ranking.png)
 
 ### 1️⃣ Document Ingestion
