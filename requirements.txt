@@ -2,8 +2,8 @@ fastapi
 uvicorn
 python-dotenv
 pydantic
-sentence-transformers==2.6.1
+
 qdrant-client
-scikit-learn
-numpy
+httpx
+
 google-generativeai
