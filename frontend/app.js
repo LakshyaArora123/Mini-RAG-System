@@ -78,7 +78,7 @@ function addFileToPanel(name) {
   list.appendChild(div);
 }
 
-async function clearDocs() {
+async function clearDocuments() {
   await fetch(`${BACKEND_URL}/clear`, { method: "DELETE" });
   document.getElementById("fileList").innerHTML = "";
   selectedFile = null;
