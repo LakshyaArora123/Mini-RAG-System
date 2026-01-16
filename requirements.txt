@@ -8,3 +8,4 @@ httpx
 
 google-genai
 pypdf
+python-multipart
