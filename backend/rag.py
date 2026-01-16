@@ -5,11 +5,9 @@ from qdrant_client import QdrantClient
 from backend.qdrant_client import client, COLLECTION
 from qdrant_client.models import Filter, FieldCondition, MatchValue
 
-client_gemini = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 load_dotenv('backend/.env', override=True)
-
-COLLECTION = "mini_rag_loc"
+client_gemini = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 def gemini_embed(text: str) -> list[float]:
     response = client_gemini.models.embed_content(
@@ -125,7 +123,7 @@ def answer_query(query, top_k=5, source=None):
             ]
         }
 
-    results = client.search(**search_kwargs)
+    results = client.search_points(**search_kwargs)
 
     if not results:
         return {
