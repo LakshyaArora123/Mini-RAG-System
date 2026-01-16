@@ -114,28 +114,12 @@ def answer_query(query, top_k=5, source=None):
 
     query_vec = gemini_embed(query)
 
-    if source:
-        results = client.query_points(
-            collection_name=COLLECTION,
-            query=query_vec,
-            limit=top_k,
-            with_payload=True,
-            filter=Filter(
-                must=[
-                    FieldCondition(
-                        key="source",
-                        match=MatchValue(value=source)
-                    )
-                ]
-            )
-        )
-    else:
-        results = client.query_points(
-            collection_name=COLLECTION,
-            query=query_vec,
-            limit=top_k,
-            with_payload=True
-        )
+    results = client.query_points(
+        collection_name=COLLECTION,
+        query=query_vec,
+        limit=top_k * 3,   # over-fetch since we filter manually
+        with_payload=True
+    )
 
     if not results or not results.points:
         return {
@@ -144,13 +128,24 @@ def answer_query(query, top_k=5, source=None):
             "top_contexts": []
         }
 
-    top_contexts = [p.payload for p in results.points[:3]]
+    points = results.points
+    if source:
+        points = [p for p in points if p.payload.get("source") == source]
+
+    if not points:
+        return {
+            "query": query,
+            "final_answer": "I do not know based on the provided context.",
+            "top_contexts": []
+        }
+
+    top_contexts = [p.payload for p in points[:3]]
     context_texts = [c["text"] for c in top_contexts]
 
     try:
         final_answer = gemini_synthesize_answer(query, context_texts)
     except Exception:
-        final_answer = top_contexts[0]["text"]
+        final_answer = context_texts[0]
 
     return {
         "query": query,
