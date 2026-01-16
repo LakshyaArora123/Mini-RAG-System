@@ -12,4 +12,4 @@ client = QdrantClient(
     api_key=os.getenv("QDRANT_API_KEY")
 )
 
-COLLECTION = "mini_rag_local"
+COLLECTION = "mini_rag_loc"

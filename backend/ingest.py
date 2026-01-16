@@ -1,14 +1,21 @@
 import os
 from dotenv import load_dotenv
-from sentence_transformers import SentenceTransformer
+
 from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance, PointStruct
 
 load_dotenv('backend/.env', override=True)
 
-COLLECTION = "mini_rag_local"
+from google import genai
+client_gemini = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+def gemini_embed(text: str) -> list[float]:
+    response = client_gemini.models.embed_content(
+        model="text-embedding-004",
+        content=text
+    )
+    return response.embedding
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+COLLECTION = "mini_rag_loc"
 
 client = QdrantClient(
     url=os.getenv("QDRANT_URL"),
@@ -20,7 +27,7 @@ if not client.collection_exists(COLLECTION):
     client.create_collection(
         collection_name=COLLECTION,
         vectors_config=VectorParams(
-            size=384,
+            size=768,
             distance=Distance.COSINE
         )
     )
@@ -32,7 +39,7 @@ texts = [
 
 points = []
 for i, text in enumerate(texts):
-    vec = model.encode(text).tolist()
+    vec = gemini_embed(text)
     points.append(
         PointStruct(
             id=i,
