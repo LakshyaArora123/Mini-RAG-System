@@ -16,19 +16,17 @@ This project demonstrates **end-to-end backend engineering**, vector search, clo
 
 ## 📌 What This Project Demonstrates
 
-✅ RAG pipeline design
-✅ Document ingestion & chunking
-✅ Embeddings with **Gemini**
-✅ Vector search with **Qdrant Cloud**
-✅ LLM-grounded answers (no hallucination)
-✅ Separate frontend & backend deployments
-✅ Real-world production debugging & fixes
+*✅ RAG pipeline design
+*✅ Document ingestion & chunking
+*✅ Embeddings with **Gemini**
+*✅ Vector search with **Qdrant Cloud**
+*✅ LLM-grounded answers (no hallucination)
+*✅ Separate frontend & backend deployments
+*✅ Real-world production debugging & fixes
 
 ---
 
 ## 🧠 High-Level Architecture
-
-![Image](https://www.researchgate.net/publication/378364457/figure/fig1/AS%3A11431281225000902%401708532903222/Retrieval-Augmented-Generation-Architecture.png)
 
 ![Image](https://cdn.prod.website-files.com/636e9a9a8d334e3450b08cc9/66ec7a2ce46888a5b8d4f50c_66ec79aece12f878f6eb35ab_Retrieval%2520Augmented%2520Generation.webp)
 
