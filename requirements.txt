@@ -1,15 +1,17 @@
 fastapi
-uvicorn
-
-sentence-transformers
-qdrant-client
-scikit-learn
-numpy
+uvicorn[standard]
 
 python-dotenv
 pydantic
 
-google-genai
+sentence-transformers==2.6.1
+torch==2.2.2+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+numpy
+scikit-learn
+
+qdrant-client
 httpx
 
 pypdf
