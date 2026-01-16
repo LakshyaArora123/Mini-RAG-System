@@ -124,7 +124,7 @@ def answer_query(query, top_k=5, source=None):
     query=query_vec,
     limit=top_k,
     with_payload=True,
-    filter=Filter(
+    search_filter=Filter(
         must=[
             FieldCondition(
                 key="source",
