@@ -16,13 +16,13 @@ This project demonstrates **end-to-end backend engineering**, vector search, clo
 
 ## 📌 What This Project Demonstrates
 
-*✅ RAG pipeline design
-*✅ Document ingestion & chunking
-*✅ Embeddings with **Gemini**
-*✅ Vector search with **Qdrant Cloud**
-*✅ LLM-grounded answers (no hallucination)
-*✅ Separate frontend & backend deployments
-*✅ Real-world production debugging & fixes
+* ✅ RAG pipeline design
+* ✅ Document ingestion & chunking
+* ✅ Embeddings with **Gemini**
+* ✅ Vector search with **Qdrant Cloud**
+* ✅ LLM-grounded answers (no hallucination)
+* ✅ Separate frontend & backend deployments
+* ✅ Real-world production debugging & fixes
 
 ---
 
